@@ -1,0 +1,48 @@
+﻿# Dependencies
+node_modules/
+/jspm_packages/
+.pnp
+.pnp.js
+
+# Testing
+/coverage
+.nyc_output
+
+# Production Build Artifacts
+/dist
+/build
+/out
+.next/
+.svelte-kit/
+
+# Python virtualenvs and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.local
+.env.*.local
+*.log
+
+# Databases & local configs
+*.db
+*.sqlite
+/backend/trendpulse.db
+.cache/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+Thumbs.db
