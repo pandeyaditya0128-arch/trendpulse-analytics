@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:8001";
+const BACKEND_URL = import.meta.env.VITE_API_URL || "https://trendpulse-backend-yi4b.onrender.com";
 
 interface RegionType {
   name: string;
