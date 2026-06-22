@@ -27,7 +27,14 @@ app = FastAPI(title="TrendPulse AI API", version="1.0.0")
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://trendpulse-analytics-self.vercel.app",
+        "https://trendpulse-analytics-alpha.vercel.app",
+    ],
+    allow_origin_regex="https://trendpulse-analytics-.*\\.vercel\\.app",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -621,7 +628,7 @@ async def system_health(db: Session = Depends(get_db)):
     import sys
     try:
         # Check DB connection
-        db.execute(Base.metadata.tables.get("users").select().limit(1))
+        db.query(User).first()
         db_status = "healthy"
     except Exception:
         db_status = "unhealthy"
@@ -702,3 +709,5 @@ async def system_logs():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
+

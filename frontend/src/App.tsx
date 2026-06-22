@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 
-const BACKEND_URL = "http://localhost:8001";
+const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:8001";
 
 interface RegionType {
   name: string;
