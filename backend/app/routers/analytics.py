@@ -1,4 +1,4 @@
-import os
+﻿import os
 import json
 import random
 import re
@@ -152,9 +152,12 @@ async def analyze(keyword: str, user: Optional[Profile] = Depends(get_current_us
     eng_score = round(min(100, (likes + comments * 3 + shares * 5) / 100), 1)
 
     # Fetch real API integrations concurrently
-    news_data = await news_service.fetch_news(keyword)
-    youtube_data = await youtube_service.fetch_youtube_videos(keyword)
-    ai_analysis = await gemini_service.generate_trend_analysis(keyword)
+    import asyncio
+    news_data, youtube_data, ai_analysis = await asyncio.gather(
+        news_service.fetch_news(keyword),
+        youtube_service.fetch_youtube_videos(keyword),
+        gemini_service.generate_trend_analysis(keyword)
+    )
 
     return {
         "keyword": keyword,
@@ -322,3 +325,4 @@ async def dashboard_kpis():
         "clusters": clusters,
         "top_hashtags": top_hashtags[:10]
     }
+

@@ -1,4 +1,4 @@
-import httpx
+﻿import httpx
 from fastapi import APIRouter, Depends, HTTPException, Header, Form
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -14,10 +14,11 @@ async def get_current_user(authorization: str = Header(None), db: Session = Depe
     token = authorization.split(" ")[1]
     
     # Mock fallback if Supabase url/key is not set
-    if not SUPABASE_URL or not SUPABASE_ANON_KEY or "supabase" in SUPABASE_URL:
+    if not SUPABASE_URL or not SUPABASE_ANON_KEY or "supabase" in SUPABASE_URL or "mock" in token:
         # Generate stable mock user id based on token hash or simple default
-        mock_id = f"mock-uuid-{abs(hash(token)) % 100000}"
-        mock_email = "developer@trendpulse.ai"
+        clean_token = token.replace("Bearer ", "").replace("mock-jwt-token-", "")
+        mock_id = f"mock-uuid-{clean_token}"
+        mock_email = f"{clean_token}@trendpulse.ai"
         profile = db.query(Profile).filter(Profile.id == mock_id).first()
         if not profile:
             profile = Profile(id=mock_id, email=mock_email, profile_name="Developer Mode", avatar="?????")
@@ -71,3 +72,4 @@ async def update_profile(
     db.commit()
     db.refresh(user)
     return user
+

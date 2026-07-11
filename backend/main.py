@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 
 # Add the backend directory and app directory to the system path
