@@ -1,120 +1,128 @@
-# TrendPulse AI â€“ Social Media Trend Prediction Platform
+# TrendPulse AI - AI-Powered Trend Intelligence Platform
 
-TrendPulse AI is a modern, production-quality SaaS analytics platform that predicts emerging social media trends using Natural Language Processing (NLP), Machine Learning, sentiment analysis, engagement metrics, and real-time visualization.
-
-Designed like an enterprise business intelligence tool (comparable to Tableau, Power BI, or Hootsuite), the application features a futuristic dark UI, premium glassmorphism effects, smooth animations, and fully responsive layouts.
-
----
+TrendPulse AI is a professional, commercial-grade SaaS web application designed for a final-year college project. It offers real-time keyword intelligence, search history logging, dataset management (CSV/JSON uploading), side-by-side keyword comparisons, conversational AI copilot sessions, and generated reports exportable in PDF, CSV, and Excel formats.
 
 ## Key Features
 
-* **SaaS Analytics Dashboard**: High-impact metrics including Trend Strength, Total Mentions, Positive/Negative/Neutral sentiment ratios, Virality, and Growth Rate.
-* **Auto-Regressive ML Forecasting**: Integrates a `scikit-learn` Random Forest regressor to analyze historical mention lags and generate 30-day dotted trajectory lines with confidence intervals.
-* **Smart Sentiment Analysis**: Evaluates raw text logs using natural language preprocessing, tokenization, stopword removal, and lexicon scoring.
-* **Live Trending Pipeline**: Live ticker panel feeding emerging hashtags and explosive keyword movements.
-* **Geographical & Time Slices**: Displays region popularity wireframes (USA, India, UK, Canada, Germany, Japan, Australia) and hourly/daily/weekly timeline trends.
-* **Topic Clustering & Word Cloud**: Interactive floating bubble charts for category grouping and hashtag frequency word clouds.
-* **ML Pipeline Flowchart**: An interactive, animated SVG diagram visualizing data flow from raw ingestion to model prediction.
-* **Dataset Manager**: Upload CSV/JSON logs, preview schemas, validate structures, and auto-detect columns.
-* **Security & Admin Controls**: Expose JWT authentication (Signup, Login, Verify), generate API access keys, inspect system health monitors, and view live gateway logs.
+1. **Premium SaaS UI**: Vibrant dark and light themes, dynamic layouts, custom glassmorphism widgets, and smooth Framer Motion animations.
+2. **Supabase Authentication**: Secure user management (Sign Up, Login, Forgot Password, Logout, email verification) handled client-side using Supabase Auth.
+3. **Analytics Dashboard**: High-level KPIs, overall sentiment distributions, trend volume charts, regional heatmaps, and trending hashtags.
+4. **CSV Upload Engine**: Interactive file uploader, schema detection, row previews, active file history, and database mapping.
+5. **Keyword Search**: Retrieves news headlines, YouTube engagement metadata, and detailed AI analysis concurrently.
+6. **Gemini AI Deep Analysis**: Structured summaries, market sentiment scores, future predictions, content strategies, and conversational AI chatbot sessions.
+7. **Multi-term Comparison**: Compares two keywords side-by-side with dual line charts, comparative news lists, and AI reports.
+8. **Exportable Reports**: PDF downloads generated client-side, and Excel/CSV sheets streamed from the backend.
 
 ---
 
-## Tech Stack
+## Technology Stack
 
-**Frontend:**
-* React (v19)
-* TypeScript (v6)
-* TailwindCSS (v4)
-* Framer Motion (v12)
-* Recharts (v3)
-* Lucide Icons
-
-**Backend & ML:**
-* FastAPI (Python v3.13)
-* SQLAlchemy (v2)
-* Scikit-Learn (v1.8)
-* Pandas & NumPy
-* PyJWT (Token Validation)
-
-**Database & Cache:**
-* PostgreSQL (with transparent local `SQLite3` database file fallback for zero-config startup)
-* Redis (with in-memory dictionary-based key-value cache layer fallback)
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS (v4), Recharts, Framer Motion, React Router, jsPDF, html2canvas
+- **Backend**: FastAPI (Python), SQLAlchemy ORM, psycopg (PostgreSQL client), Pandas, Scikit-learn
+- **Database**: Supabase PostgreSQL / Local SQLite fallback
+- **Authentication**: Supabase Auth
 
 ---
 
-## Project Structure
+## Directory Structure
 
 ```text
-â”œâ”€â”€ backend/
-â”‚   â”œâ”€â”€ cache.py          # Redis/Memory Cache Layer
-â”‚   â”œâ”€â”€ database.py       # SQL Database Engine & Schemas
-â”‚   â”œâ”€â”€ data_gen.py       # Synthetic Dataset Generator
-â”‚   â”œâ”€â”€ dataset.json      # Mock Ingestion Data (5,000 entries)
-â”‚   â”œâ”€â”€ main.py           # FastAPI Core Application Router
-â”‚   â””â”€â”€ ml_engine.py      # ML Regressor, NLP Cleaners & Clustering
-â”‚   â””â”€â”€ requirements.txt  # Python Dependency Manifesto
-â”œâ”€â”€ frontend/
-â”‚   â”œâ”€â”€ public/           # Static assets
-â”‚   â”œâ”€â”€ src/
-â”‚   â”‚   â”œâ”€â”€ assets/       # Media files
-â”‚   â”‚   â”œâ”€â”€ App.tsx       # Main React Component
-â”‚   â”‚   â”œâ”€â”€ main.tsx      # React DOM bootstrap
-â”‚   â”‚   â””â”€â”€ index.css     # CSS Custom rules & Tailwind v4
-â”‚   â”œâ”€â”€ index.html        # HTML Template wrapper
-â”‚   â”œâ”€â”€ package.json      # Node Packages & Scripts
-â”‚   â”œâ”€â”€ tsconfig.json     # Typescript root configuration
-â”‚   â””â”€â”€ tsconfig.app.json # Typescript App build configuration
-â””â”€â”€ .gitignore            # Root repository file filters
+iridescent-lunar/                  <-- Project Workspace Root
++-- .gitignore
++-- README.md                      <-- Global README file
++-- .env.example                   <-- Global environment configurations example
++-- backend/                       <-- FastAPI Python Backend
+¦   +-- app/                       <-- Modular App Folder
+¦   ¦   +-- routers/               <-- API Route Routers
+¦   ¦   ¦   +-- auth.py            <-- Supabase JWT verification & Profiles
+¦   ¦   ¦   +-- analytics.py       <-- Searches, forecasts, and history
+¦   ¦   ¦   +-- datasets.py        <-- CSV parser and history
+¦   ¦   ¦   +-- chatbot.py         <-- Gemini Chatbot
+¦   ¦   ¦   +-- reports.py         <-- PDF, CSV, Excel exports
+¦   ¦   +-- services/              <-- Integrations & Business Logic
+¦   ¦   ¦   +-- gemini_service.py  <-- Gemini AI integration
+¦   ¦   ¦   +-- ml_service.py      <-- RF forecasts and clustering
+¦   ¦   ¦   +-- news_service.py    <-- NewsAPI client
+¦   ¦   ¦   +-- youtube_service.py <-- YouTube Data API client
+¦   ¦   +-- config.py              <-- Configuration & Env loader
+¦   ¦   +-- database.py            <-- SQLAlchemy ORM Engine
+¦   ¦   +-- models.py              <-- Database Tables
+¦   ¦   +-- schemas.py             <-- Pydantic validation schemas
+¦   +-- main.py                    <-- Backend Entry point
+¦   +-- requirements.txt           <-- Python requirements
+¦   +-- trendpulse.db              <-- Local fallback SQLite DB
++-- frontend/                      <-- React + TypeScript + Vite Frontend
+    +-- public/                    <-- Static assets
+    +-- src/                       <-- React source code
+    ¦   +-- components/            <-- Layout shell and guards
+    ¦   +-- context/               <-- Supabase Auth Context
+    ¦   +-- lib/                   <-- Supabase client configuration
+    ¦   +-- pages/                 <-- SaaS application views
+    ¦   +-- App.tsx                <-- Router configuration
+    ¦   +-- main.tsx               <-- Render entry
+    +-- package.json               <-- Node.js package configurations
+    +-- vite.config.ts
 ```
 
 ---
 
-## Installation & Setup
+## Setup and Installation
 
-### Prerequisites
-* [Node.js](https://nodejs.org/) (v20+ recommended)
-* [Python](https://www.python.org/) (v3.10+ recommended)
-* PostgreSQL & Redis (Optional - falls back to SQLite & in-memory cache automatically)
+### Backend Setup
 
-### 1. Backend Configuration
 1. Navigate to the `backend` folder:
    ```bash
    cd backend
    ```
-2. Install Python packages:
+2. Create a virtual environment and install packages:
    ```bash
+   python -m venv .venv
+   source .venv/bin/activate   # Windows: .venv\Scripts\activate
    pip install -r requirements.txt
    ```
-3. Start the FastAPI server:
+3. Copy environment variables:
+   Create a `.env` file inside `backend/` and copy variables from `.env.example`:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   SUPABASE_URL=https://your-project-id.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+   NEWS_API_KEY=your_news_api_key_here
+   YOUTUBE_API_KEY=your_youtube_api_key_here
+   DATABASE_URL=postgresql://postgres:password@db.your-project.supabase.co:5432/postgres
+   ```
+4. Start the server:
    ```bash
    python main.py
    ```
-   The backend will bootstrap, load/generate default mock data, and run on `http://localhost:8001`.
+   The backend server runs on `http://localhost:8000`.
 
-### 2. Frontend Configuration
+### Frontend Setup
+
 1. Navigate to the `frontend` folder:
    ```bash
    cd ../frontend
    ```
-2. Install Node dependencies:
+2. Install packages:
    ```bash
    npm install
    ```
-3. Run the Vite development server:
+3. Configure environment variables:
+   Create a `.env` file inside `frontend/` and add:
+   ```env
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your_anon_key_here
+   VITE_API_URL=http://localhost:8000
+   ```
+4. Start the development server:
    ```bash
    npm run dev
    ```
-   The application will start on `http://localhost:5173`. Open this URL in your web browser.
+   Open `http://localhost:5173` in your browser.
 
 ---
 
-## Screenshots Placeholder
+## Production Readiness
 
-*Insert beautiful screenshots of the Dashboard, Dataset Manager, and Admin console here.*
-
----
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- **Vercel Deployment**: The frontend is completely configured for Vercel static routing.
+- **Render Deployment**: The backend is configured as a standalone ASGI application using `uvicorn app.main:app` or `python main.py`.
+- **Database Fallback**: In the absence of a `DATABASE_URL` PostgreSQL string, the backend automatically provisions a local SQLite DB (`trendpulse.db`) to keep the system fully functional.
