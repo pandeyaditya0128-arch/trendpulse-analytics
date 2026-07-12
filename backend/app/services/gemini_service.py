@@ -1,4 +1,4 @@
-﻿import httpx
+import httpx
 import json
 from typing import Dict, Any, List
 from app.config import GEMINI_API_KEY
@@ -9,11 +9,60 @@ class GeminiAPIError(Exception):
         self.status_code = status_code
         super().__init__(message)
 
+SELECTED_GEMINI_MODEL = None
+
+async def detect_supported_model() -> str:
+    global SELECTED_GEMINI_MODEL
+    if SELECTED_GEMINI_MODEL:
+        return SELECTED_GEMINI_MODEL
+        
+    if not GEMINI_API_KEY:
+        return "models/gemini-2.5-flash-lite"
+        
+    url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.get(url, timeout=10.0)
+            if res.status_code == 200:
+                models_data = res.json().get("models", [])
+                supported_models = []
+                for m in models_data:
+                    name = m.get("name", "")
+                    methods = m.get("supportedGenerationMethods", [])
+                    if "generateContent" not in methods:
+                        continue
+                    if "gemini-2.5-flash" in name or "gemini-2.5-pro" in name:
+                        continue
+                    supported_models.append(name)
+                
+                preferred = [
+                    "models/gemini-2.5-flash-lite",
+                    "models/gemini-2.0-flash",
+                    "models/gemini-3.5-flash",
+                    "models/gemini-pro-latest"
+                ]
+                for pref in preferred:
+                    if pref in supported_models:
+                        SELECTED_GEMINI_MODEL = pref
+                        print(f"[DEBUG] Detected and selected preferred Gemini model: {SELECTED_GEMINI_MODEL}")
+                        return SELECTED_GEMINI_MODEL
+                        
+                if supported_models:
+                    SELECTED_GEMINI_MODEL = supported_models[0]
+                    print(f"[DEBUG] Selected first available Gemini model: {SELECTED_GEMINI_MODEL}")
+                    return SELECTED_GEMINI_MODEL
+    except Exception as e:
+        print(f"[DEBUG] Failed to detect Gemini models: {e}")
+        
+    SELECTED_GEMINI_MODEL = "models/gemini-2.5-flash-lite"
+    return SELECTED_GEMINI_MODEL
+
 async def call_gemini(prompt: str, expect_json: bool = False) -> str:
     if not GEMINI_API_KEY:
         raise GeminiAPIError("GEMINI_API_KEY is missing", 401)
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    model = await detect_supported_model()
+    url = f"https://generativelanguage.googleapis.com/v1beta/{model}:generateContent?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
     
     payload = {
@@ -33,13 +82,11 @@ async def call_gemini(prompt: str, expect_json: bool = False) -> str:
                 text = data["candidates"][0]["content"]["parts"][0]["text"]
                 return text.strip()
             elif res.status_code == 429:
-                # Log exact API error for debugging
                 print(f"[DEBUG] Gemini API Quota Exceeded (429): {res.text}")
                 raise GeminiAPIError("Gemini daily API quota has been reached. Please try again after the quota resets.", 429)
             else:
-                # Log other exact API errors
                 print(f"[DEBUG] Gemini API Error {res.status_code}: {res.text}")
-                raise GeminiAPIError(f"Gemini API returned status code {res.status_code}", res.status_code)
+                raise GeminiAPIError(f"Gemini API Error {res.status_code}: {res.text}", res.status_code)
     except httpx.HTTPError as e:
         print(f"[DEBUG] Gemini Client HTTP Exception: {e}")
         raise GeminiAPIError(f"Gemini API connection error: {str(e)}", 500)
@@ -147,3 +194,4 @@ async def generate_comparison_summary(kw1: str, kw2: str) -> str:
         return f"Comparison Analysis: {kw1} vs {kw2} is currently unavailable."
     except Exception:
         return f"Comparison Analysis: {kw1} vs {kw2} is currently unavailable."
+
