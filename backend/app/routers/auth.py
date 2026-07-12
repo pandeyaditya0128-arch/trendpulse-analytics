@@ -1,4 +1,4 @@
-﻿import httpx
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Header, Form
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -8,26 +8,15 @@ from app.config import SUPABASE_URL, SUPABASE_ANON_KEY
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-async def get_current_user(authorization: str = Header(None), db: Session = Depends(get_db)):
+from typing import Optional
+
+async def get_current_user(
+    authorization: str = Header(None),
+    db: Session = Depends(get_db)
+):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
     token = authorization.split(" ")[1]
-    
-    # Mock fallback if Supabase url/key is not set or contains placeholder project prefix
-    is_mock = not SUPABASE_URL or not SUPABASE_ANON_KEY or "your-project" in SUPABASE_URL or "mock" in token
-    if is_mock:
-        # Avoid generating random usernames/emails - map to Aditya Pandey test profile
-        mock_id = "aditya-pandey-mock-id"
-        mock_email = "aditya@gmail.com"
-        mock_name = "Aditya Pandey"
-        
-        profile = db.query(Profile).filter(Profile.id == mock_id).first()
-        if not profile:
-            profile = Profile(id=mock_id, email=mock_email, profile_name=mock_name, avatar="\U0001F916")
-            db.add(profile)
-            db.commit()
-            db.refresh(profile)
-        return profile
         
     # Standard Supabase User Info Call
     headers = {
@@ -75,3 +64,4 @@ async def update_profile(
     db.commit()
     db.refresh(user)
     return user
+

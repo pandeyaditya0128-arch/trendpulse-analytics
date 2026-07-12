@@ -26,13 +26,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authToken, setAuthToken] = useState<string | null>(null);
 
   // Fetch profile from backend using JWT token
-  const fetchProfile = async (token: string) => {
+  const fetchProfile = async (token: string, currentUser?: any) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/profile`, {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
+      const headers: Record<string, string> = {
+        "Authorization": `Bearer ${token}`
+      };
+            const res = await fetch(`${BACKEND_URL}/api/auth/profile`, { headers });
       if (res.ok) {
         const data = await res.json();
         setProfile(data);
@@ -51,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setAuthToken(session?.access_token ?? null);
       if (session?.access_token) {
-        fetchProfile(session.access_token);
+        fetchProfile(session.access_token, session.user);
       }
       setLoading(false);
     });
@@ -62,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setAuthToken(session?.access_token ?? null);
       if (session?.access_token) {
-        fetchProfile(session.access_token);
+        fetchProfile(session.access_token, session.user);
       } else {
         setProfile(null);
       }
@@ -160,3 +159,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+
