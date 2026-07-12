@@ -14,17 +14,16 @@ async def get_current_user(authorization: str = Header(None), db: Session = Depe
     token = authorization.split(" ")[1]
     
     # Mock fallback if Supabase url/key is not set or contains placeholder project prefix
-    if not SUPABASE_URL or not SUPABASE_ANON_KEY or "your-project" in SUPABASE_URL or "mock" in token:
-        clean_token = token.replace("Bearer ", "").replace("mock-jwt-token-", "")
-        import hashlib
-        token_hash = hashlib.md5(clean_token.encode()).hexdigest()[:6]
-        mock_id = f"mock-uuid-{token_hash}"
-        mock_email = f"user_{token_hash}@trendpulse.ai"
+    is_mock = not SUPABASE_URL or not SUPABASE_ANON_KEY or "your-project" in SUPABASE_URL or "mock" in token
+    if is_mock:
+        # Avoid generating random usernames/emails - map to Aditya Pandey test profile
+        mock_id = "aditya-pandey-mock-id"
+        mock_email = "aditya@gmail.com"
+        mock_name = "Aditya Pandey"
+        
         profile = db.query(Profile).filter(Profile.id == mock_id).first()
         if not profile:
-            # Fallback mock name
-            default_name = "Aditya Pandey" if "test" in clean_token or "user" in clean_token else "User Profile"
-            profile = Profile(id=mock_id, email=mock_email, profile_name=default_name, avatar="\U0001F916")
+            profile = Profile(id=mock_id, email=mock_email, profile_name=mock_name, avatar="\U0001F916")
             db.add(profile)
             db.commit()
             db.refresh(profile)

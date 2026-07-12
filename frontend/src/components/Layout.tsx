@@ -52,8 +52,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const currentPath = location.pathname;
 
   // Safe avatar: use profile avatar if set, else default robot emoji via codepoint
-  const displayAvatar = profile?.avatar && profile.avatar.length > 0 ? profile.avatar : "\u{1F916}";
-  const displayName = profile?.profile_name || "User";
+  const displayAvatar = profile?.avatar || "";
+  const displayName = profile?.profile_name || "";
 
   return (
     <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
@@ -224,4 +224,5 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     </div>
   );
 };
+
 
