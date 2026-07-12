@@ -164,7 +164,7 @@ export const LandingPage: React.FC = () => {
 
       {/* FOOTER */}
       <footer className="border-t border-slate-900/60 py-10 text-center text-xs text-slate-600 relative z-10 bg-slate-950">
-        <p>© 2026 TrendPulse AI Platform. Developed for Final Year College Project Submission.</p>
+        <p>© 2026 TrendPulse AI Platform. Developed by Sweta Maurya. All Rights Reserved.</p>
       </footer>
 
       {/* AUTHENTICATION MODAL */}
@@ -336,4 +336,7 @@ export const LandingPage: React.FC = () => {
     </div>
   );
 };
+
+
+
 

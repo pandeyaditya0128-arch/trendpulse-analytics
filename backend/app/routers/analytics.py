@@ -326,3 +326,225 @@ async def dashboard_kpis():
         "top_hashtags": top_hashtags[:10]
     }
 
+
+@router.get("/dashboard/live")
+async def dashboard_live(keyword: str = "AI", user: Optional[Profile] = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Keyword-driven dashboard: fetches real News, YouTube, and Gemini data.
+    Caches results in-memory for 10 minutes to avoid redundant API calls.
+    """
+    import asyncio, time, hashlib
+    global _dashboard_cache
+    if not hasattr(dashboard_live, "_cache"):
+        dashboard_live._cache = {}
+    
+    cache_key = keyword.lower().strip()
+    now = time.time()
+    
+    # Return cached result if < 10 minutes old
+    if cache_key in dashboard_live._cache:
+        cached_at, cached_data = dashboard_live._cache[cache_key]
+        if now - cached_at < 600:
+            return cached_data
+    
+    # Fetch real data in parallel
+    try:
+        news_data, youtube_data, ai_analysis = await asyncio.gather(
+            news_service.fetch_news(keyword),
+            youtube_service.fetch_youtube_videos(keyword),
+            gemini_service.generate_trend_analysis(keyword)
+        )
+    except Exception as e:
+        return {"error": f"Failed to fetch live data: {str(e)}", "keyword": keyword}
+    
+    news_data = news_data or []
+    youtube_data = youtube_data or []
+
+    # Save search history
+    if user:
+        try:
+            record = SearchHistory(user_id=user.id, keyword=keyword)
+            db.add(record)
+            db.commit()
+        except:
+            pass
+
+    # Compute KPIs from real data
+    news_count = len(news_data)
+    yt_count = len(youtube_data)
+    total_mentions = news_count + yt_count
+
+    yt_likes = sum(int(v.get("likes", 0)) for v in youtube_data)
+    yt_views = sum(int(v.get("views", 0)) for v in youtube_data)
+    yt_comments = sum(int(v.get("comments", 0) if "comments" in v else 0) for v in youtube_data)
+    total_engagement = yt_likes + yt_views + yt_comments
+
+    # Sentiment from AI analysis
+    sentiment = {"positive": 0, "neutral": 0, "negative": 0}
+    if ai_analysis:
+        sraw = ai_analysis.get("sentiment_summary", "")
+        if isinstance(sraw, dict):
+            sentiment = sraw
+        else:
+            stxt = str(sraw).lower()
+            if "positive" in stxt or "bullish" in stxt or "optimistic" in stxt:
+                sentiment = {"positive": 65, "neutral": 25, "negative": 10}
+            elif "negative" in stxt or "bearish" in stxt or "pessimistic" in stxt:
+                sentiment = {"positive": 20, "neutral": 30, "negative": 50}
+            else:
+                sentiment = {"positive": 40, "neutral": 40, "negative": 20}
+
+    # Trend score from news recency + youtube views
+    trend_strength = min(99, round(
+        (news_count * 5) + (yt_count * 8) + (min(yt_views, 10_000_000) / 200_000)
+    , 1))
+
+    # Growth rate from most recent vs oldest YouTube video dates
+    growth_rate = 0.0
+    if len(youtube_data) >= 2:
+        dates = []
+        for v in youtube_data:
+            try:
+                d = v.get("published_at", "")
+                if d:
+                    dates.append(datetime.strptime(d[:10], "%Y-%m-%d"))
+            except:
+                pass
+        if len(dates) >= 2:
+            dates.sort()
+            days_span = max(1, (dates[-1] - dates[0]).days)
+            growth_rate = round((yt_count / days_span) * 10, 1)
+
+    # Build trend volume over time from news publish dates
+    daily_vol: dict = {}
+    for article in news_data:
+        d = (article.get("publishedAt") or "")[:10]
+        if d:
+            daily_vol[d] = daily_vol.get(d, 0) + 1
+    for video in youtube_data:
+        d = (video.get("published_at") or "")[:10]
+        if d:
+            daily_vol[d] = daily_vol.get(d, 0) + 2
+
+    history = [{"date": d, "volume": v} for d, v in sorted(daily_vol.items())[-30:]]
+
+    # Trending hashtags derived from news titles
+    from collections import Counter
+    words = []
+    for a in news_data:
+        title = a.get("title", "") or ""
+        for tok in title.split():
+            tok = tok.strip(".,!?\"'()[]#@").lower()
+            if len(tok) > 3 and tok.isalpha():
+                words.append(tok)
+    stopwords = {"that","this","with","from","have","will","they","been","were","your","more","also","than","when","into","just","like","over","some","such","then","what","other","after","about","which","their","there","these","those","being","would","should","could","while","where","since","until","though","because","however","therefore"}
+    top_words = [(w, c) for w, c in Counter(words).most_common(30) if w not in stopwords and w.lower() != keyword.lower()][:8]
+    top_hashtags = [{"tag": f"#{w}", "count": c, "growth": round(c * 1.5, 1)} for w, c in top_words]
+
+    # Category intensity from news sources
+    source_counts = Counter(a.get("source", "Unknown") for a in news_data)
+    heatmap = [{"category": s, "intensity": min(99, round(c * 10, 1))} for s, c in source_counts.most_common(9)]
+
+    # AI insights block
+    ai_insights = {}
+    if ai_analysis:
+        ai_insights = {
+            "executive_summary": ai_analysis.get("executive_summary", ""),
+            "sentiment_summary": ai_analysis.get("sentiment_summary", ""),
+            "business_insights": ai_analysis.get("business_insights", ""),
+            "future_prediction": ai_analysis.get("future_prediction", ""),
+            "content_suggestions": ai_analysis.get("content_suggestions", [])
+        }
+
+    result = {
+        "keyword": keyword,
+        "kpis": {
+            "trend_strength": trend_strength,
+            "total_mentions": total_mentions,
+            "total_engagement": total_engagement,
+            "growth_rate": growth_rate,
+            "sentiment": sentiment,
+            "news_count": news_count,
+            "youtube_count": yt_count,
+            "youtube_views": yt_views,
+            "youtube_likes": yt_likes,
+        },
+        "history": history,
+        "top_hashtags": top_hashtags,
+        "heatmap": heatmap,
+        "news": news_data[:5],
+        "youtube": youtube_data[:5],
+        "ai_insights": ai_insights,
+        "cached_at": datetime.now().isoformat()
+    }
+
+    dashboard_live._cache[cache_key] = (now, result)
+    return result
+
+@router.get("/compare/full")
+async def compare_full(kw1: str, kw2: str, user: Optional[Profile] = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Enhanced compare endpoint with full news + youtube data per keyword."""
+    import asyncio, time
+    if user:
+        try:
+            record = ComparisonHistory(user_id=user.id, keyword_1=kw1, keyword_2=kw2)
+            db.add(record); db.commit()
+        except: pass
+
+    # Check cache
+    if not hasattr(compare_full, "_cache"):
+        compare_full._cache = {}
+    cache_key = f"{kw1.lower()}|{kw2.lower()}"
+    now = time.time()
+    if cache_key in compare_full._cache:
+        cached_at, cached_data = compare_full._cache[cache_key]
+        if now - cached_at < 600:
+            return cached_data
+
+    async def analyze_kw(kw):
+        news, yt, ai = await asyncio.gather(
+            news_service.fetch_news(kw),
+            youtube_service.fetch_youtube_videos(kw),
+            gemini_service.generate_trend_analysis(kw)
+        )
+        news = news or []; yt = yt or []
+        daily: dict = {}
+        for a in news:
+            d = (a.get("publishedAt") or "")[:10]
+            if d: daily[d] = daily.get(d, 0) + 1
+        for v in yt:
+            d = (v.get("published_at") or "")[:10]
+            if d: daily[d] = daily.get(d, 0) + 2
+        history = [{"date": d, "volume": v} for d, v in sorted(daily.items())]
+        total_mentions = len(news) + len(yt)
+        yt_likes = sum(int(v.get("likes", 0)) for v in yt)
+        yt_views = sum(int(v.get("views", 0)) for v in yt)
+        sentiment = {"positive": 0, "neutral": 0, "negative": 0}
+        if ai:
+            sraw = str(ai.get("sentiment_summary", "")).lower()
+            if "positive" in sraw or "bullish" in sraw:
+                sentiment = {"positive": 65, "neutral": 25, "negative": 10}
+            elif "negative" in sraw or "bearish" in sraw:
+                sentiment = {"positive": 20, "neutral": 30, "negative": 50}
+            else:
+                sentiment = {"positive": 40, "neutral": 40, "negative": 20}
+        return {
+            "total_mentions": total_mentions,
+            "sentiment": sentiment,
+            "engagement": {"likes": yt_likes, "comments": 0, "shares": 0, "views": yt_views},
+            "history": history,
+            "news": news[:5],
+            "youtube": yt[:5],
+            "ai": ai
+        }
+
+    a1, a2 = await asyncio.gather(analyze_kw(kw1), analyze_kw(kw2))
+    ai_comparison = await gemini_service.generate_comparison_summary(kw1, kw2)
+
+    result = {
+        "keyword_1": kw1, "keyword_2": kw2,
+        "analysis_1": a1, "analysis_2": a2,
+        "ai_comparison": ai_comparison
+    }
+    compare_full._cache[cache_key] = (now, result)
+    return result

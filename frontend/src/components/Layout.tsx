@@ -215,6 +215,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           {children}
         </main>
       </div>
+      {/* FOOTER */}
+      <footer className={`shrink-0 border-t py-3 px-6 text-center text-[10px] font-medium tracking-wide transition-colors ${
+        theme === "dark" ? "bg-slate-950/80 border-slate-900/60 text-slate-600" : "bg-white/80 border-slate-200 text-slate-400"
+      }`}>
+        &copy; 2026 TrendPulse AI Platform. Developed by <span className="text-purple-500 font-semibold">Sweta Maurya</span>. All Rights Reserved.
+      </footer>
     </div>
   );
 };
