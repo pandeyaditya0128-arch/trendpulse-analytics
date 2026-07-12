@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { 
   Search, Brain, Heart, MessageSquare, Share2, 
@@ -101,7 +101,7 @@ export const KeywordSearch: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Keyword Intelligence</h1>
-          <p className="text-xs text-slate-500">Query keywords to fetch live News, Video views, and Gemini-based analytical summaries.</p>
+          <p className="text-xs text-slate-500">Query keywords to fetch live News, YouTube engagement, and Gemini-based analytical summaries.</p>
         </div>
 
         <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80 z-20">
@@ -251,7 +251,7 @@ export const KeywordSearch: React.FC = () => {
               </div>
             </div>
 
-            {/* NEWS & Video LAYER */}
+            {/* NEWS & YOUTUBE ENGAGEMENT */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* News Section */}
               <div className="glass-card rounded-3xl p-6 border border-slate-900/60 flex flex-col gap-4">
@@ -281,12 +281,12 @@ export const KeywordSearch: React.FC = () => {
 
               {/* Video Section */}
               <div className="glass-card rounded-3xl p-6 border border-slate-900/60 flex flex-col gap-4">
-                <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"><Video size={14} className="text-red-400" /> Video Video Analysis</span>
+                <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"><Video size={14} className="text-red-400" /> YouTube Video Engagement</span>
                 <div className="flex flex-col gap-4 max-h-[480px] overflow-y-auto pr-1">
-                  {searchData.Video.map((item: any, idx: number) => (
+                  {(searchData.youtube || []).map((item: any, idx: number) => (
                     <a 
                       key={idx}
-                      href={`https://Video.com/watch?v=${item.id}`}
+                      href={`https://youtube.com/watch?v=${item.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-3.5 bg-slate-900/40 hover:bg-slate-900 border border-slate-800/40 rounded-2xl flex gap-3 transition-colors text-xs"
@@ -316,3 +316,4 @@ export const KeywordSearch: React.FC = () => {
     </div>
   );
 };
+

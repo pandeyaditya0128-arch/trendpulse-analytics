@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -62,7 +62,7 @@ export default function App() {
             }
           />
           <Route
-            path="/chatbot"
+            path="/query-bot"
             element={
               <ProtectedRoute>
                 <Layout>
@@ -99,3 +99,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+

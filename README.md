@@ -1,6 +1,6 @@
-# TrendPulse AI - AI-Powered Trend Intelligence Platform
+ï»¿# TrendPulse AI - AI-Powered Trend Intelligence Platform
 
-TrendPulse AI is a professional, commercial-grade SaaS web application designed for a final-year college project. It offers real-time keyword intelligence, search history logging, dataset management (CSV/JSON uploading), side-by-side keyword comparisons, conversational AI copilot sessions, and generated reports exportable in PDF, CSV, and Excel formats.
+TrendPulse AI is a professional, commercial-grade SaaS web application designed for a final-year college project. It offers real-time keyword intelligence, search history logging, dataset management (CSV/JSON uploading), side-by-side keyword comparisons, Query Bot sessions, and generated reports exportable in PDF, CSV, and Excel formats.
 
 ## Key Features
 
@@ -9,7 +9,7 @@ TrendPulse AI is a professional, commercial-grade SaaS web application designed 
 3. **Analytics Dashboard**: High-level KPIs, overall sentiment distributions, trend volume charts, regional heatmaps, and trending hashtags.
 4. **CSV Upload Engine**: Interactive file uploader, schema detection, row previews, active file history, and database mapping.
 5. **Keyword Search**: Retrieves news headlines, YouTube engagement metadata, and detailed AI analysis concurrently.
-6. **Gemini AI Deep Analysis**: Structured summaries, market sentiment scores, future predictions, content strategies, and conversational AI chatbot sessions.
+6. **Gemini AI Deep Analysis**: Structured summaries, market sentiment scores, future predictions, content strategies, and conversational AI query-bot sessions.
 7. **Multi-term Comparison**: Compares two keywords side-by-side with dual line charts, comparative news lists, and AI reports.
 8. **Exportable Reports**: PDF downloads generated client-side, and Excel/CSV sheets streamed from the backend.
 
@@ -32,34 +32,34 @@ iridescent-lunar/                  <-- Project Workspace Root
 +-- README.md                      <-- Global README file
 +-- .env.example                   <-- Global environment configurations example
 +-- backend/                       <-- FastAPI Python Backend
-¦   +-- app/                       <-- Modular App Folder
-¦   ¦   +-- routers/               <-- API Route Routers
-¦   ¦   ¦   +-- auth.py            <-- Supabase JWT verification & Profiles
-¦   ¦   ¦   +-- analytics.py       <-- Searches, forecasts, and history
-¦   ¦   ¦   +-- datasets.py        <-- CSV parser and history
-¦   ¦   ¦   +-- chatbot.py         <-- Gemini Chatbot
-¦   ¦   ¦   +-- reports.py         <-- PDF, CSV, Excel exports
-¦   ¦   +-- services/              <-- Integrations & Business Logic
-¦   ¦   ¦   +-- gemini_service.py  <-- Gemini AI integration
-¦   ¦   ¦   +-- ml_service.py      <-- RF forecasts and clustering
-¦   ¦   ¦   +-- news_service.py    <-- NewsAPI client
-¦   ¦   ¦   +-- youtube_service.py <-- YouTube Data API client
-¦   ¦   +-- config.py              <-- Configuration & Env loader
-¦   ¦   +-- database.py            <-- SQLAlchemy ORM Engine
-¦   ¦   +-- models.py              <-- Database Tables
-¦   ¦   +-- schemas.py             <-- Pydantic validation schemas
-¦   +-- main.py                    <-- Backend Entry point
-¦   +-- requirements.txt           <-- Python requirements
-¦   +-- trendpulse.db              <-- Local fallback SQLite DB
+Â¦   +-- app/                       <-- Modular App Folder
+Â¦   Â¦   +-- routers/               <-- API Route Routers
+Â¦   Â¦   Â¦   +-- auth.py            <-- Supabase JWT verification & Profiles
+Â¦   Â¦   Â¦   +-- analytics.py       <-- Searches, forecasts, and history
+Â¦   Â¦   Â¦   +-- datasets.py        <-- CSV parser and history
+Â¦   Â¦   Â¦   +-- query-bot.py         <-- Gemini Chatbot
+Â¦   Â¦   Â¦   +-- reports.py         <-- PDF, CSV, Excel exports
+Â¦   Â¦   +-- services/              <-- Integrations & Business Logic
+Â¦   Â¦   Â¦   +-- gemini_service.py  <-- Gemini AI integration
+Â¦   Â¦   Â¦   +-- ml_service.py      <-- RF forecasts and clustering
+Â¦   Â¦   Â¦   +-- news_service.py    <-- NewsAPI client
+Â¦   Â¦   Â¦   +-- youtube_service.py <-- YouTube Data API client
+Â¦   Â¦   +-- config.py              <-- Configuration & Env loader
+Â¦   Â¦   +-- database.py            <-- SQLAlchemy ORM Engine
+Â¦   Â¦   +-- models.py              <-- Database Tables
+Â¦   Â¦   +-- schemas.py             <-- Pydantic validation schemas
+Â¦   +-- main.py                    <-- Backend Entry point
+Â¦   +-- requirements.txt           <-- Python requirements
+Â¦   +-- trendpulse.db              <-- Local fallback SQLite DB
 +-- frontend/                      <-- React + TypeScript + Vite Frontend
     +-- public/                    <-- Static assets
     +-- src/                       <-- React source code
-    ¦   +-- components/            <-- Layout shell and guards
-    ¦   +-- context/               <-- Supabase Auth Context
-    ¦   +-- lib/                   <-- Supabase client configuration
-    ¦   +-- pages/                 <-- SaaS application views
-    ¦   +-- App.tsx                <-- Router configuration
-    ¦   +-- main.tsx               <-- Render entry
+    Â¦   +-- components/            <-- Layout shell and guards
+    Â¦   +-- context/               <-- Supabase Auth Context
+    Â¦   +-- lib/                   <-- Supabase client configuration
+    Â¦   +-- pages/                 <-- SaaS application views
+    Â¦   +-- App.tsx                <-- Router configuration
+    Â¦   +-- main.tsx               <-- Render entry
     +-- package.json               <-- Node.js package configurations
     +-- vite.config.ts
 ```
@@ -126,3 +126,4 @@ iridescent-lunar/                  <-- Project Workspace Root
 - **Vercel Deployment**: The frontend is completely configured for Vercel static routing.
 - **Render Deployment**: The backend is configured as a standalone ASGI application using `uvicorn app.main:app` or `python main.py`.
 - **Database Fallback**: In the absence of a `DATABASE_URL` PostgreSQL string, the backend automatically provisions a local SQLite DB (`trendpulse.db`) to keep the system fully functional.
+

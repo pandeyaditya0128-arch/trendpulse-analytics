@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List
@@ -8,7 +8,7 @@ from app.schemas import ChatMessage, ChatResponse, ChatHistoryResponse
 from app.routers.auth import get_current_user
 from app.services import gemini_service
 
-router = APIRouter(prefix="/api/chatbot", tags=["chatbot"])
+router = APIRouter(prefix="/api/query-bot", tags=["query-bot"])
 
 @router.post("", response_model=ChatResponse)
 async def chat_with_bot(
@@ -52,3 +52,4 @@ async def get_chat_history(
 ):
     history = db.query(ChatHistory).filter(ChatHistory.user_id == user.id).order_by(ChatHistory.created_at.asc()).all()
     return history
+

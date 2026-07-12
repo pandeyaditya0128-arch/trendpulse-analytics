@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { 
   Send, MessageSquare, Bot, User as UserIcon, 
@@ -27,7 +27,7 @@ export const Chatbot: React.FC = () => {
     if (!authToken) return;
     setHistoryLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/chatbot/history`, {
+      const res = await fetch(`${BACKEND_URL}/api/query-bot/history`, {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       if (res.ok) {
@@ -64,7 +64,7 @@ export const Chatbot: React.FC = () => {
     setInput("");
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/chatbot`, {
+      const res = await fetch(`${BACKEND_URL}/api/query-bot`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${authToken}`,
@@ -103,7 +103,7 @@ export const Chatbot: React.FC = () => {
             <Bot size={16} />
           </div>
           <div>
-            <span className="text-xs font-bold text-slate-200">TrendPulse AI Copilot</span>
+            <span className="text-xs font-bold text-slate-200">TrendPulse Query Bot</span>
             <p className="text-[10px] text-slate-500">Ask questions about trends, crypto, tech, or compare keywords.</p>
           </div>
         </div>
@@ -168,7 +168,7 @@ export const Chatbot: React.FC = () => {
                   <Bot size={14} className="animate-spin" />
                 </div>
                 <div className="p-4 bg-slate-900/60 rounded-2xl rounded-tl-none border border-slate-800/80 flex items-center gap-1 text-slate-500 text-[10px]">
-                  <span>AI Copilot is thinking...</span>
+                  <span>Query Bot is thinking...</span>
                 </div>
               </div>
             )}
@@ -187,7 +187,7 @@ export const Chatbot: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask AI Copilot..."
+            placeholder="Ask Query Bot..."
             disabled={loading}
             className="px-4 py-3.5 text-xs bg-transparent focus:outline-none flex-1 text-slate-200"
           />
@@ -203,3 +203,5 @@ export const Chatbot: React.FC = () => {
     </div>
   );
 };
+
+

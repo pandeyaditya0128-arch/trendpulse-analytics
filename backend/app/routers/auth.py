@@ -17,11 +17,13 @@ async def get_current_user(authorization: str = Header(None), db: Session = Depe
     if not SUPABASE_URL or not SUPABASE_ANON_KEY or "supabase" in SUPABASE_URL or "mock" in token:
         # Generate stable mock user id based on token hash or simple default
         clean_token = token.replace("Bearer ", "").replace("mock-jwt-token-", "")
-        mock_id = f"mock-uuid-{clean_token}"
-        mock_email = f"{clean_token}@trendpulse.ai"
+        import hashlib
+        token_hash = hashlib.md5(clean_token.encode()).hexdigest()[:6]
+        mock_id = f"mock-uuid-{token_hash}"
+        mock_email = f"user_{token_hash}@trendpulse.ai"
         profile = db.query(Profile).filter(Profile.id == mock_id).first()
         if not profile:
-            profile = Profile(id=mock_id, email=mock_email, profile_name="Developer Mode", avatar="?????")
+            profile = Profile(id=mock_id, email=mock_email, profile_name="Developer Mode", avatar="\U0001F916")
             db.add(profile)
             db.commit()
             db.refresh(profile)
@@ -47,7 +49,7 @@ async def get_current_user(authorization: str = Header(None), db: Session = Depe
             profile = db.query(Profile).filter(Profile.id == user_id).first()
             if not profile:
                 # Create profile if not exists
-                profile = Profile(id=user_id, email=email, profile_name=email.split("@")[0], avatar="??")
+                profile = Profile(id=user_id, email=email, profile_name=email.split("@")[0], avatar="\U0001F916")
                 db.add(profile)
                 db.commit()
                 db.refresh(profile)
@@ -72,4 +74,5 @@ async def update_profile(
     db.commit()
     db.refresh(user)
     return user
+
 

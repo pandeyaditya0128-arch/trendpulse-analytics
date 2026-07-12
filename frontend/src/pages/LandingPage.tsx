@@ -62,7 +62,7 @@ export const LandingPage: React.FC = () => {
     { icon: BarChart3, title: "Interactive Recharts", desc: "Explore velocity with Line, Bar, Area, and Pie charts." },
     { icon: Clock, title: "YouTube & News Sync", desc: "Retrieve latest top headlines and YouTube video engagement counts." },
     { icon: Sparkles, title: "Multi-Term Comparison", desc: "Compare multiple keywords side-by-side with comparison graphs." },
-    { icon: MessageSquare, title: "AI Copilot Chat", desc: "Chat with the TrendPulse assistant to summarize daily topics." },
+    { icon: MessageSquare, title: "Query Bot", desc: "Chat with the TrendPulse Query Bot to summarize daily topics." },
     { icon: FileText, title: "Exportable Reports", desc: "Save AI research reports and export data sheets to PDF or Excel." }
   ];
 
@@ -336,3 +336,4 @@ export const LandingPage: React.FC = () => {
     </div>
   );
 };
+

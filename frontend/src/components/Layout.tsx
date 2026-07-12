@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { 
@@ -44,7 +44,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     { path: "/search", label: "Keyword Intelligence", icon: Search },
     { path: "/compare", label: "Trend Comparison", icon: TrendingUp },
     { path: "/datasets", label: "CSV Dataset Upload", icon: Database },
-    { path: "/chatbot", label: "AI Copilot Chat", icon: MessageSquare },
+    { path: "/query-bot", label: "Query Bot", icon: MessageSquare },
     { path: "/reports", label: "Generated Reports", icon: FileText },
     { path: "/profile", label: "Profile Settings", icon: UserIcon }
   ];
@@ -217,3 +217,4 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     </div>
   );
 };
+
