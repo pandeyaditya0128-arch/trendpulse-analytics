@@ -1,12 +1,17 @@
 ﻿import httpx
 import json
-import random
 from typing import Dict, Any, List
 from app.config import GEMINI_API_KEY
 
+class GeminiAPIError(Exception):
+    def __init__(self, message: str, status_code: int = 500):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
+
 async def call_gemini(prompt: str, expect_json: bool = False) -> str:
     if not GEMINI_API_KEY:
-        return ""
+        raise GeminiAPIError("GEMINI_API_KEY is missing", 401)
     
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
@@ -27,12 +32,17 @@ async def call_gemini(prompt: str, expect_json: bool = False) -> str:
                 data = res.json()
                 text = data["candidates"][0]["content"]["parts"][0]["text"]
                 return text.strip()
+            elif res.status_code == 429:
+                # Log exact API error for debugging
+                print(f"[DEBUG] Gemini API Quota Exceeded (429): {res.text}")
+                raise GeminiAPIError("Gemini daily API quota has been reached. Please try again after the quota resets.", 429)
             else:
-                print(f"Gemini API Error {res.status_code}: {res.text}")
-                return ""
-    except Exception as e:
-        print(f"Gemini Client Exception: {e}")
-        return ""
+                # Log other exact API errors
+                print(f"[DEBUG] Gemini API Error {res.status_code}: {res.text}")
+                raise GeminiAPIError(f"Gemini API returned status code {res.status_code}", res.status_code)
+    except httpx.HTTPError as e:
+        print(f"[DEBUG] Gemini Client HTTP Exception: {e}")
+        raise GeminiAPIError(f"Gemini API connection error: {str(e)}", 500)
 
 async def generate_trend_analysis(keyword: str) -> Dict[str, Any]:
     prompt = f"""
@@ -50,21 +60,31 @@ async def generate_trend_analysis(keyword: str) -> Dict[str, Any]:
     Ensure all fields are fully populated with professional, high-quality, commercial-grade analysis.
     """
     
-    response_text = await call_gemini(prompt, expect_json=True)
-    if response_text:
-        try:
+    try:
+        response_text = await call_gemini(prompt, expect_json=True)
+        if response_text:
             return json.loads(response_text)
-        except Exception as e:
-            print(f"Failed to parse Gemini JSON: {e}. Raw response: {response_text}")
-            
-    # Mock fallback
+    except GeminiAPIError as e:
+        print(f"[DEBUG] Trend analysis failed: {e.message}")
+        if e.status_code == 429:
+            return {
+                "executive_summary": "Gemini daily API quota has been reached. Please try again after the quota resets.",
+                "trend_analysis": "No live analysis available due to quota limits.",
+                "sentiment_summary": "No sentiment analysis available.",
+                "business_insights": "No business insights available.",
+                "future_prediction": "No prediction available.",
+                "content_suggestions": []
+            }
+    except Exception as e:
+        print(f"[DEBUG] Trend analysis parsing error: {e}")
+        
     return {
-        "executive_summary": f"Interest in '{keyword}' has surged significantly over the past quarter.",
-        "trend_analysis": f"The trend analysis for '{keyword}' reveals high momentum.",
-        "sentiment_summary": f"Overall sentiment surrounding '{keyword}' is positive.",
-        "business_insights": f"Businesses should prioritize incorporating '{keyword}' into strategic planning.",
-        "future_prediction": f"Over the next 12 to 18 months, '{keyword}' is expected to see adoption.",
-        "content_suggestions": [f"Why '{keyword}' is reshaping the industry landscape this year."]
+        "executive_summary": "An error occurred while generating analysis.",
+        "trend_analysis": "",
+        "sentiment_summary": "",
+        "business_insights": "",
+        "future_prediction": "",
+        "content_suggestions": []
     }
 
 async def generate_chatbot_response(
@@ -101,40 +121,15 @@ async def generate_chatbot_response(
     4. Provide different and fresh answers for different questions. Always utilize the provided context.
     """
     
-    response_text = await call_gemini(prompt, expect_json=False)
-    if response_text:
+    try:
+        response_text = await call_gemini(prompt, expect_json=False)
         return response_text
-    
-    # Local fallback for quota limits/errors (makes sure every prompt gets a unique answer)
-    msg_lower = message.lower().strip()
-    if "bitcoin" in msg_lower:
-        return """### Bitcoin (BTC) Analytics Summary
-- **Overview**: Bitcoin operates as a decentralized peer-to-peer digital currency, secured by Proof-of-Work consensus.
-- **Market Sentiment**: Neutral to bullish, with strong long-term support levels and growing institutional interest.
-- **Future Outlook**: Consolidation phase expected with potential volatility leading to future halving cycles."""
-    elif "ai" in msg_lower or "artificial intelligence" in msg_lower:
-        return """### Artificial Intelligence (AI) Market Intelligence
-- **Overview**: Generative AI models are driving automation and efficiency across industries.
-- **Market Sentiment**: Strongly positive, dominated by enterprise adoption and scaling of language models.
-- **Future Outlook**: Mainstream integration with advanced multi-modal capabilities over the next 12 months."""
-    elif "tesla" in msg_lower:
-        return """### Tesla (TSLA) Trend Overview
-- **Overview**: Tesla continues leading EV production while expanding battery storage and autopilot AI systems.
-- **Market Sentiment**: Mixed to positive, reflecting strong product line-up but ongoing regulatory scrutiny.
-- **Future Outlook**: Next-generation platform launches will determine the long-term volume trajectory."""
-    elif "apple" in msg_lower or "samsung" in msg_lower:
-        return """### Apple vs Samsung Comparative Profile
-- **Overview**: Apple and Samsung continue to dominate the premium mobile device landscape. Apple focuses on ecosystem lock-in and high-margin services, while Samsung leads in hardware innovation, such as foldable displays. Both are aggressively integrating custom AI chips.
-- **Market Sentiment**: Highly competitive, with both brands maintaining massive customer loyalty databases."""
-    elif "dataset" in msg_lower or "csv" in msg_lower:
-        return f"""### Uploaded Dataset Analysis
-- **Query**: {message}
-- **Insight**: Found matching text records in your uploaded dataset. The entries display strong engagement statistics and category divisions."""
-    else:
-        return f"""### TrendPulse AI Assistant Response
-- **Query**: {message}
-- **Status**: API quota limit reached. Showing local analytical model.
-- **Insight**: We are observing high interest in this segment, particularly driven by emerging research and digital transformation trends. Please try again later for full Gemini analysis."""
+    except GeminiAPIError as e:
+        if e.status_code == 429:
+            return "Gemini daily API quota has been reached. Please try again after the quota resets."
+        return f"An API error occurred: {e.message}"
+    except Exception as e:
+        return f"An unexpected error occurred: {str(e)}"
 
 async def generate_comparison_summary(kw1: str, kw2: str) -> str:
     prompt = f"""
@@ -142,7 +137,13 @@ async def generate_comparison_summary(kw1: str, kw2: str) -> str:
     Highlight the key differences, market position, adoption velocity, and which trend is leading or holds more future promise.
     Provide a clean, readable response with markdown bullet points. Max 200 words.
     """
-    response_text = await call_gemini(prompt, expect_json=False)
-    if response_text:
+    try:
+        response_text = await call_gemini(prompt, expect_json=False)
         return response_text
-    return f"Comparative Analysis: {kw1} vs {kw2} is currently unavailable."
+    except GeminiAPIError as e:
+        print(f"[DEBUG] Comparison summary failed: {e.message}")
+        if e.status_code == 429:
+            return "Gemini daily API quota has been reached. Please try again after the quota resets."
+        return f"Comparison Analysis: {kw1} vs {kw2} is currently unavailable."
+    except Exception:
+        return f"Comparison Analysis: {kw1} vs {kw2} is currently unavailable."
