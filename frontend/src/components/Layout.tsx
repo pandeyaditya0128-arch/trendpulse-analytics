@@ -143,7 +143,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div className="flex items-center gap-2.5 pl-1">
             <div className="text-right hidden sm:block">
               <p className="text-xs font-semibold leading-tight">{displayName}</p>
-              <p className="text-[10px] text-slate-500 leading-tight">TrendPulse Member</p>
+              <p className="text-[10px] text-slate-500 leading-tight">{profile?.email}</p>
             </div>
             <Link to="/profile" className="h-9 w-9 rounded-xl bg-purple-950/30 border border-purple-500/20 flex items-center justify-center text-xl hover:border-purple-500/50 transition-all" title="Profile">
               {displayAvatar}
@@ -224,3 +224,4 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     </div>
   );
 };
+

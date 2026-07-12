@@ -13,9 +13,8 @@ async def get_current_user(authorization: str = Header(None), db: Session = Depe
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
     token = authorization.split(" ")[1]
     
-    # Mock fallback if Supabase url/key is not set
-    if not SUPABASE_URL or not SUPABASE_ANON_KEY or "supabase" in SUPABASE_URL or "mock" in token:
-        # Generate stable mock user id based on token hash or simple default
+    # Mock fallback if Supabase url/key is not set or contains placeholder project prefix
+    if not SUPABASE_URL or not SUPABASE_ANON_KEY or "your-project" in SUPABASE_URL or "mock" in token:
         clean_token = token.replace("Bearer ", "").replace("mock-jwt-token-", "")
         import hashlib
         token_hash = hashlib.md5(clean_token.encode()).hexdigest()[:6]
@@ -23,7 +22,9 @@ async def get_current_user(authorization: str = Header(None), db: Session = Depe
         mock_email = f"user_{token_hash}@trendpulse.ai"
         profile = db.query(Profile).filter(Profile.id == mock_id).first()
         if not profile:
-            profile = Profile(id=mock_id, email=mock_email, profile_name="Developer Mode", avatar="\U0001F916")
+            # Fallback mock name
+            default_name = "Aditya Pandey" if "test" in clean_token or "user" in clean_token else "User Profile"
+            profile = Profile(id=mock_id, email=mock_email, profile_name=default_name, avatar="\U0001F916")
             db.add(profile)
             db.commit()
             db.refresh(profile)
@@ -45,11 +46,12 @@ async def get_current_user(authorization: str = Header(None), db: Session = Depe
             user_data = res.json()
             user_id = user_data.get("id")
             email = user_data.get("email")
+            user_metadata = user_data.get("user_metadata", {})
+            profile_name = user_metadata.get("display_name", email.split("@")[0])
             
             profile = db.query(Profile).filter(Profile.id == user_id).first()
             if not profile:
-                # Create profile if not exists
-                profile = Profile(id=user_id, email=email, profile_name=email.split("@")[0], avatar="\U0001F916")
+                profile = Profile(id=user_id, email=email, profile_name=profile_name, avatar="\U0001F916")
                 db.add(profile)
                 db.commit()
                 db.refresh(profile)
@@ -74,5 +76,3 @@ async def update_profile(
     db.commit()
     db.refresh(user)
     return user
-
-

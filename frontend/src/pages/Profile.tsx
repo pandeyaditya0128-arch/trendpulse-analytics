@@ -2,7 +2,7 @@
 import { useAuth } from "../context/AuthContext";
 import { 
   User as UserIcon, Mail, Calendar, Settings, 
-  CheckCircle2, Sparkles, AlertCircle
+  CheckCircle2, Sparkles, AlertCircle, Shield
 } from "lucide-react";
 
 export const Profile: React.FC = () => {
@@ -55,6 +55,8 @@ export const Profile: React.FC = () => {
     );
   }
 
+  const username = profile.email ? profile.email.split("@")[0] : "";
+
   return (
     <div className="max-w-xl mx-auto flex flex-col gap-6">
       {/* HEADER */}
@@ -86,6 +88,27 @@ export const Profile: React.FC = () => {
               placeholder="Your Name"
               className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs focus:border-purple-500 focus:outline-none w-full text-slate-200"
             />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Username (Read-Only)</label>
+              <input 
+                type="text" 
+                readOnly
+                value={username}
+                className="bg-slate-950 border border-slate-900 rounded-xl px-4 py-3 text-xs text-slate-500 cursor-not-allowed outline-none w-full"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Email Address (Read-Only)</label>
+              <input 
+                type="text" 
+                readOnly
+                value={profile.email}
+                className="bg-slate-950 border border-slate-900 rounded-xl px-4 py-3 text-xs text-slate-500 cursor-not-allowed outline-none w-full"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">
